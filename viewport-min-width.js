@@ -6,10 +6,6 @@
  * This script must be added *after* the viewport meta tag, since it relies on
  * that tag already being available in the DOM.
  *
- * Implementation note: The reason we remove the old tag and insert a new one
- *                      is that Firefox doesn't pick up changes to the viewport
- *                      meta tag.
- *
  * Author: Brendan Long <self@brendanlong.com> & August Zellmer
  * License: Public Domain - http://unlicense.org/
  * See: https://github.com/brendanlong/viewport-min-width-polyfill
@@ -23,7 +19,7 @@ initMinViewportWidth();
 function initMinViewportWidth(){
 	initialViewport = document.querySelector("meta[name=viewport]");
 	if (!initialViewport) {
-		console.warn("No meta[name=viewport] element found. Minimum viewport width cannot be set. Please ensure that the meta[name=viewport] element has been loaded before function updateMetaViewport() is called.");
+		console.warn("No meta[name=viewport] tag found. Minimum viewport width cannot be set. Please ensure that the meta[name=viewport] tag has been loaded before function updateMetaViewport() is called.");
 		return;
 	}
 	
@@ -44,12 +40,10 @@ function updateMetaViewport() {
 	if (screen.width < minWidth) {
 		const newViewport = initialViewport;
 		
-		const content = initialViewport.getAttribute("content");
+		var content = initialViewport.getAttribute("content");
 		content = replaceWidth(content, minWidth);
 		newViewport.setAttribute("content", content);
-		
-		document.head.removeChild(initialViewport);
-		document.head.appendChild(newViewport);
+		replaceMetaViewportTag(newViewport);
 	}
 }
 
@@ -67,7 +61,7 @@ function getMinWidth(initialViewport){
 			throw "Minimum viewport width cannot be set to a non-numeric value.";
 		}
 	}
-	throw "No min-width property found in the content of the meta[name=viewport] element. Minimum viewport width cannot be set.";
+	throw "No min-width property found in the content of the meta[name=viewport] tag. Minimum viewport width cannot be set.";
 }
 
 function replaceWidth(content, minWidth){
@@ -76,6 +70,9 @@ function replaceWidth(content, minWidth){
 	const newContent = content.replace(regex, newWidth);
 	return newContent;
 }
-	
-	
-	
+
+function replaceMetaViewportTag(newViewport){
+	/* We must remove the old tag and insert a new one, because Firefox doesn't pick up mere changes to the existing meta[name=viewport] tag. */
+	document.head.removeChild(initialViewport);
+	document.head.appendChild(newViewport);
+}
