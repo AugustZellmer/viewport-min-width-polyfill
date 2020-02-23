@@ -15,6 +15,7 @@ var initialViewport = null;
 var minWidth = null;
 
 initMinViewportWidth();
+updateMetaViewport();
 
 function initMinViewportWidth(){
 	initialViewport = document.querySelector("meta[name=viewport]");
@@ -26,7 +27,7 @@ function initMinViewportWidth(){
 	try{
 		minWidth = getMinWidth(initialViewport);
 	}
-	catch(const s){
+	catch(s){
 		console.warn(s);
 		return;
 	}
@@ -36,8 +37,8 @@ function updateMetaViewport() {
 	if(!initialViewport || !minWidth){
 		console.warn("Function initMinViewportWidth() has not been called. Minimum viewport width cannot be set. Please ensure that function initMinViewportWidth() is called before function updateMetaViewport().");
 	}
-	
-	if (screen.width < minWidth) {
+console.log(window.innerWidth);
+	if (window.innerWidth < minWidth) {
 		const newViewport = initialViewport;
 		
 		var content = initialViewport.getAttribute("content");
@@ -54,8 +55,8 @@ function getMinWidth(initialViewport){
 		const part = parts[i].trim();
 		const pair = part.split("=");
 		if (pair[0] === "min-width") {
-			const minWidth parseInt(pair[1]);
-			if(!isNaN(minWidth){
+			const minWidth = parseInt(pair[1]);
+			if(!isNaN(minWidth)){
 				return minWidth;
 			}
 			throw "Minimum viewport width cannot be set to a non-numeric value.";
@@ -66,8 +67,9 @@ function getMinWidth(initialViewport){
 
 function replaceWidth(content, minWidth){
 	const regex = /width *= *.*?,/;
-	const newWidth = "width=".concat(minWidth);
+	const newWidth = "width=".concat(minWidth).concat(",");
 	const newContent = content.replace(regex, newWidth);
+	console.log(newContent);
 	return newContent;
 }
 
